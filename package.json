@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "karma": "karma start"
+    "karma": "karma start",
+    "ci": "karma start --browsers=ChromeHeadless"
   },
   "author": "",
   "license": "ISC",
