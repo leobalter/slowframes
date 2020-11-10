@@ -3,7 +3,7 @@ module.exports = (config) => {
 		autoWatch: false,
 		browsers: ['Chrome'],
 		concurrency: 1,
-		files: ['index.html'],
+		files: ['index.js'],
 		singleRun: true
 	});
 };
