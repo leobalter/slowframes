@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var iframe = document.createElement('iframe');
+        iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
+        iframe.style.display = 'none';
+
+        document.body.appendChild(iframe);
+        var iframeWindow = iframe.contentWindow;
+        document.body.removeChild(iframe);
+
+        var descriptors = Object.getOwnPropertyDescriptors(iframeWindow);
+
+        var errs = [];
+        var unforgeables = Object.entries(descriptors).filter(([name, desc]) => {
+            const { configurable } = desc;
+
+            if (configurable) {
+                console.log(name);
+                try {
+                    delete iframeWindow[name];
+                } catch(e) {
+                    errs.push(e);
+                }
+            }
+
+            return !configurable;
+        }).map(([name]) => name);
+
+        console.log(unforgeables);
+        console.log(errs);
+    </script>
+</body>
+</html>

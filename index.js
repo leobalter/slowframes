@@ -2,7 +2,7 @@ var suite = new Benchmark.Suite(
 	'iframes', {
 		onComplete() {
 			console.log('Fastest is ' + this.filter('fastest').map('name'));
-			Object.keys(this[0]);
+			console.log(this);
 		}
 	});
 
@@ -35,6 +35,7 @@ suite
 		var iframeWindow = iframe.contentWindow;
 		document.body.removeChild(iframe);
 
+		// TypeError while on benchmark
 		var descriptors = Object.getOwnPropertyDescriptors(iframeWindow);
 
 		var unforgeables = Object.entries(descriptors).filter(([name, desc]) => {
@@ -46,7 +47,7 @@ suite
 
 			return !configurable;
 		}).map(([name]) => name);
-    
-    	// console.log(unforgeables);
+
+		console.log(unforgeables);
 	})
 	.run();

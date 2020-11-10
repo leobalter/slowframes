@@ -1,7 +1,7 @@
 module.exports = (config) => {
 	config.set({
 		autoWatch: false,
-		browsers: ['ChromeHeadless'],
+		browsers: ['Chrome'],
 		concurrency: 1,
 		files: ['index.js'],
 		frameworks: ['benchmark'],
