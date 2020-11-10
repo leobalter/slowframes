@@ -3,12 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slow iframes</title>
-    <script src="node_modules/lodash/lodash.min.js"></script>
-    <script src="node_modules/platform/platform.js"></script>
-    <script src="node_modules/benchmark/benchmark.js"></script>
+    <title>Document</title>
 </head>
 <body>
-    <script src="index.js"></script>
+    <script src="intrinsics.js"></script>
+    <script>
+        window.suite = {
+            add(name, callback) {
+                setTimeout(() => {
+                    const t0 = performance.now();
+                    callback();
+                    callback();
+                    callback();
+                    const t1 = performance.now();
+                    console.log(`${name}: ${t1 - t0} milliseconds.`);
+                }, 0)
+
+                return suite;
+            }
+        };
+
+        suite
+            .add('iframes detached', () => {
+                var iframe = document.createElement('iframe');
+                document.body.appendChild(iframe);
+                document.body.removeChild(iframe);
+            })
+            .add('iframe eval', () => {
+                var iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+
+                document.body.appendChild(iframe);
+                var realmGlobal = iframe.contentWindow;
+
+                var realmEvaluate = realmGlobal.eval;
+                document.body.removeChild(iframe);
+
+                realmEvaluate('typeof x;');
+            })
+            .add('realm dummy polyfill', () => {
+                var iframe = document.createElement('iframe');
+                iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
+                iframe.style.display = 'none';
+
+                document.body.appendChild(iframe);
+                var realmGlobal = iframe.contentWindow;
+                
+                var descriptors = Object.getOwnPropertyDescriptors(realmGlobal);
+                
+                Object.entries(descriptors).forEach(([name, desc]) => {
+                    const configurable = desc.configurable;
+                    if (configurable) {
+                        // Skip global intrinsics
+                        if (!IntrinsicsGlobalNames.includes(name)) {
+                            delete realmGlobal[name];
+                        }
+                    }
+                });
+
+                Object.setPrototypeOf(realmGlobal.document, null);
+
+                var windowProto = realmGlobal.__proto__;
+
+                var windowProtoDescs = Object.getOwnPropertyDescriptors(windowProto);
+                Object.entries(windowProtoDescs).forEach(([name, desc]) => {
+                    const configurable = desc.configurable;
+                    if (configurable) {
+                        delete windowProto[name];
+                    }
+                });
+
+                var windowProperties = realmGlobal.__proto__.__proto__;
+
+                var windowPropertiesDescs = Object.getOwnPropertyDescriptors(windowProperties);
+                Object.entries(windowPropertiesDescs).forEach(([name, desc]) => {
+                    const configurable = desc.configurable;
+                    if (configurable) {
+                        delete windowProperties[name];
+                    }
+                });
+
+                var eventTargetProto = realmGlobal.__proto__.__proto__.__proto__;
+
+                var eventTargetProtoDescs = Object.getOwnPropertyDescriptors(eventTargetProto);
+                Object.entries(eventTargetProtoDescs).forEach(([name, desc]) => {
+                    const configurable = desc.configurable;
+                    if (configurable) {
+                        delete eventTargetProto[name];
+                    }
+                });
+
+                var realmEvaluate = realmGlobal.eval;
+                document.body.removeChild(iframe);
+                realmEvaluate('typeof x;');
+            });
+    </script>
 </body>
 </html>
