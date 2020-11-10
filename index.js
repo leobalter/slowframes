@@ -156,3 +156,5 @@ suite
         document.body.removeChild(iframe);
         realmEvaluate('typeof x;');
     });
+
+describe('1', () => it('works', () => { expect(true).toBe(true); }));

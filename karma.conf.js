@@ -4,6 +4,7 @@ module.exports = (config) => {
 		browsers: ['Chrome'],
 		concurrency: 1,
 		files: ['index.js'],
+		frameworks: ['jasmine'],
 		singleRun: true
 	});
 };
